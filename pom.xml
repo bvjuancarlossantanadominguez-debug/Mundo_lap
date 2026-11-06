@@ -24,7 +24,8 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.7.4</version>
+            <!-- 42.7.7 o posterior: las versiones 42.7.4 a 42.7.6 tienen la vulnerabilidad CVE-2025-49146 -->
+            <version>42.7.7</version>
         </dependency>
 
         <!-- Pruebas automatizadas (solo se usan al ejecutar "Test"; no viajan con el sistema) -->
