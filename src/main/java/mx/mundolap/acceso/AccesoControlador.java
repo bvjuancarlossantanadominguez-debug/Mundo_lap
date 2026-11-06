@@ -36,6 +36,10 @@ public final class AccesoControlador {
 
     public void iniciarSesion(Contexto c) throws Exception {
         String nombre = c.param("usuario");
+        if (autenticacion.bloqueado(nombre)) {
+            c.responder(429, login(nombre, "Demasiados intentos fallidos. Espere unos minutos e intente de nuevo."));
+            return;
+        }
         Optional<Usuario> u = autenticacion.autenticar(nombre, c.param("clave"));
         if (u.isEmpty()) {
             // Mensaje genérico: no revela si falló el usuario o la contraseña (RF-04).
