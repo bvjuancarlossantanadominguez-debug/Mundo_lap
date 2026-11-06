@@ -7,8 +7,8 @@ import java.sql.Statement;
 
 /**
  * Herramienta para verificar la conexión sin levantar el sistema web.
- * En VS Code: abrir este archivo y presionar "Run" sobre el método main
- * (o por terminal: mvn compile exec:java -Dexec.mainClass=mx.mundolap.compartido.bd.ProbarConexion).
+ * En NetBeans: clic derecho sobre este archivo > Run File (Shift+F6).
+ * En VS Code: presionar "Run" sobre el método main. Por terminal:mvn compile exec:java -Dexec.mainClass=mx.mundolap.compartido.bd.ProbarConexion.
  * Muestra la versión de PostgreSQL, la base y el usuario, y las tablas que ya existen en el esquema public.
  */
 public final class ProbarConexion {

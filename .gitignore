@@ -1,0 +1,25 @@
+# Compilación de Maven
+target/
+
+# NetBeans
+nbproject/private/
+nbactions.xml
+nb-configuration.xml
+
+# IntelliJ / VS Code / Eclipse
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos comprimidos y locales que no deben subirse
+*.zip
+*.log
+# Copia local de la configuración con contraseña (usar variables de entorno o esta copia, nunca subirla)
+bd.local.properties

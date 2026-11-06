@@ -21,11 +21,17 @@ import java.util.Properties;
  * Configuración (de mayor a menor prioridad):
  *   1. Variables de entorno: MUNDOLAP_BD_HOST, MUNDOLAP_BD_PUERTO, MUNDOLAP_BD_NOMBRE,
  *      MUNDOLAP_BD_USUARIO y MUNDOLAP_BD_CLAVE.
- *   2. Archivo src/main/resources/bd.properties.
- *   3. Valores por defecto de PostgreSQL local (localhost:5432, base "mundolap", usuario "postgres").
+ *   2. Archivo src/main/resources/bd.local.properties (opcional, NO se sube a Git: aquí va la contraseña).
+ *   3. Archivo src/main/resources/bd.properties (se sube a Git, sin contraseña).
+ *   4. Valores por defecto de PostgreSQL local (localhost:5432, base "Mundo_Lap", usuario "postgres").
+ *
+ * ESTADO ACTUAL: el sistema solo verifica la conexión al arrancar. Los módulos todavía usan
+ * repositorios en memoria; ningún dato se guarda en PostgreSQL hasta que existan los XRepositorioJdbc.
  */
 public final class ConexionBD {
     private static final String ARCHIVO = "/bd.properties";
+    private static final String ARCHIVO_LOCAL = "/bd.local.properties";
+    private static final String NOMBRE_POR_DEFECTO = "Mundo_Lap";
     private static final int SEGUNDOS_ESPERA = 5;
     private static final Properties CONFIG = cargarArchivo();
 
@@ -44,7 +50,7 @@ public final class ConexionBD {
     /** URL JDBC que se está usando (sin usuario ni contraseña, segura para mostrar en pantalla). */
     public static String url() {
         return "jdbc:postgresql://" + valor("host", "localhost") + ":" + valor("puerto", "5432")
-                + "/" + valor("nombre", "mundolap");
+                + "/" + valor("nombre", NOMBRE_POR_DEFECTO);
     }
 
     /**
@@ -72,7 +78,7 @@ public final class ConexionBD {
         }
         return switch (estado) {
             case "28P01", "28000" -> "Usuario o contraseña incorrectos. Revisa bd.usuario y bd.clave.";
-            case "3D000" -> "La base de datos '" + valor("nombre", "mundolap")
+            case "3D000" -> "La base de datos '" + valor("nombre", NOMBRE_POR_DEFECTO)
                     + "' no existe. Revisa bd.nombre (debe coincidir con el nombre que ves en pgAdmin).";
             case "08001", "08006" -> "No hay respuesta del servidor. Verifica que PostgreSQL esté encendido y que "
                     + "bd.host y bd.puerto sean correctos. Detalle: " + mensaje;
@@ -90,13 +96,19 @@ public final class ConexionBD {
         return porDefecto;
     }
 
+    /** Lee bd.properties y, encima, bd.local.properties (copia personal ignorada por Git, para la contraseña). */
     private static Properties cargarArchivo() {
         Properties p = new Properties();
-        try (InputStream in = ConexionBD.class.getResourceAsStream(ARCHIVO)) {
-            if (in != null) p.load(new InputStreamReader(in, StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            System.err.println("[BD] No se pudo leer bd.properties: " + e.getMessage());
-        }
+        leer(p, ARCHIVO);
+        leer(p, ARCHIVO_LOCAL);
         return p;
+    }
+
+    private static void leer(Properties destino, String recurso) {
+        try (InputStream in = ConexionBD.class.getResourceAsStream(recurso)) {
+            if (in != null) destino.load(new InputStreamReader(in, StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            System.err.println("[BD] No se pudo leer " + recurso + ": " + e.getMessage());
+        }
     }
 }
