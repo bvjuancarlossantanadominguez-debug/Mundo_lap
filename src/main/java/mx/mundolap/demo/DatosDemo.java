@@ -18,8 +18,9 @@ import mx.mundolap.ordenes.OrdenServicioServicio;
 import mx.mundolap.ordenes.Prioridad;
 
 /**
- * Datos de ejemplo para poder usar y capturar las pantallas mientras no exista la base de datos.
- * Al conectar la BD real, se elimina este paquete y la llamada en App.java.
+ * Datos iniciales: los tres usuarios del personal (para poder iniciar sesión, ya que aún no existe la
+ * pantalla funcional de alta de usuarios) y algunos clientes, equipos y órdenes de ejemplo.
+ * App.java solo los carga cuando la base está vacía, así que nunca se duplican.
  */
 public final class DatosDemo {
     private DatosDemo() { }
@@ -27,11 +28,11 @@ public final class DatosDemo {
     public static void cargar(UsuarioRepositorio usuarios, ClienteServicio clientes,
                               EquipoServicio equipos, OrdenServicioServicio ordenes) {
         usuarios.guardar(new Usuario("USR-001", "Rosa Hernández", "recepcion", Rol.RECEPCIONISTA,
-                AutenticacionServicio.hash("recepcion123")));
+                AutenticacionServicio.generarCredencial("recepcion123")));
         usuarios.guardar(new Usuario("USR-002", "Luis Mora", "tecnico", Rol.TECNICO,
-                AutenticacionServicio.hash("tecnico123")));
+                AutenticacionServicio.generarCredencial("tecnico123")));
         usuarios.guardar(new Usuario("USR-003", "Carmen Ortiz", "gerente", Rol.GERENTE,
-                AutenticacionServicio.hash("gerente123")));
+                AutenticacionServicio.generarCredencial("gerente123")));
 
         Cliente c1 = clientes.guardar(new Cliente("", "Juan Pérez Morales", "2281234567", "", TipoCliente.PARTICULAR, "", ""));
         Cliente c2 = clientes.guardar(new Cliente("", "María Fernanda López", "2289876543", "mfernanda@correo.com", TipoCliente.PARTICULAR, "", ""));

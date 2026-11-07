@@ -11,18 +11,35 @@
     <name>Mundo Lap - Punto de venta y servicios de reparación</name>
 
     <properties>
-        <maven.compiler.release>25</maven.compiler.release>
+        <!-- Versión mínima de Java. Compila y corre con JDK 17 o cualquier versión posterior (21, 25...). -->
+        <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Clase principal: NetBeans la usa al presionar "Run" -->
         <exec.mainClass>mx.mundolap.App</exec.mainClass>
+        <junit.version>5.11.3</junit.version>
     </properties>
 
     <dependencies>
-        <!-- Driver JDBC de PostgreSQL (conexión con la base de datos de pgAdmin) -->
+        <!-- Driver JDBC de MySQL (MySQL Server 8.0.16 o superior, administrado con MySQL Workbench) -->
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>42.7.4</version>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>9.5.0</version>
+            <exclusions>
+                <!-- protobuf solo lo usa la X DevAPI; el sistema usa JDBC clásico y no lo necesita -->
+                <exclusion>
+                    <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Pruebas automatizadas (solo se usan al ejecutar "Test"; no viajan con el sistema) -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -31,7 +48,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>3.13.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
             </plugin>
         </plugins>
     </build>
