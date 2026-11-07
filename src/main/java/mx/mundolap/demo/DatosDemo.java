@@ -18,8 +18,9 @@ import mx.mundolap.ordenes.OrdenServicioServicio;
 import mx.mundolap.ordenes.Prioridad;
 
 /**
- * Datos de ejemplo para poder usar y capturar las pantallas mientras no exista la base de datos.
- * Al conectar la BD real, se elimina este paquete y la llamada en App.java.
+ * Datos iniciales: los tres usuarios del personal (para poder iniciar sesión, ya que aún no existe la
+ * pantalla funcional de alta de usuarios) y algunos clientes, equipos y órdenes de ejemplo.
+ * App.java solo los carga cuando la base está vacía, así que nunca se duplican.
  */
 public final class DatosDemo {
     private DatosDemo() { }

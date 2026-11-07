@@ -1,0 +1,3 @@
+# Renombra este archivo a  bd.local.properties  (sin ".ejemplo") y escribe tu contraseña de MySQL.
+# Git ignora bd.local.properties, así que tu contraseña nunca se sube a GitHub.
+bd.clave=ESCRIBE_AQUI_TU_CONTRASENA

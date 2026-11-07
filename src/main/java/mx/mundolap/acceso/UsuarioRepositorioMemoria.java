@@ -14,4 +14,7 @@ public final class UsuarioRepositorioMemoria implements UsuarioRepositorio {
 
     @Override
     public void guardar(Usuario usuario) { datos.put(usuario.nombreUsuario(), usuario); }
+
+    @Override
+    public boolean vacio() { return datos.isEmpty(); }
 }
