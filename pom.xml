@@ -11,10 +11,12 @@
     <name>Mundo Lap - Punto de venta y servicios de reparación</name>
 
     <properties>
-        <maven.compiler.release>25</maven.compiler.release>
+        <!-- Versión mínima de Java. Compila y corre con JDK 17 o cualquier versión posterior (21, 25...). -->
+        <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Clase principal: NetBeans la usa al presionar "Run" -->
         <exec.mainClass>mx.mundolap.App</exec.mainClass>
+        <junit.version>5.11.3</junit.version>
     </properties>
 
     <dependencies>
@@ -22,7 +24,16 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.7.4</version>
+            <!-- 42.7.7 o posterior: las versiones 42.7.4 a 42.7.6 tienen la vulnerabilidad CVE-2025-49146 -->
+            <version>42.7.7</version>
+        </dependency>
+
+        <!-- Pruebas automatizadas (solo se usan al ejecutar "Test"; no viajan con el sistema) -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -31,7 +42,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>3.13.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
             </plugin>
         </plugins>
     </build>

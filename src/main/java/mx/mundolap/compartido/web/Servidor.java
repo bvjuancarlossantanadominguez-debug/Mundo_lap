@@ -5,6 +5,7 @@ import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,8 +23,12 @@ public final class Servidor {
         this.sesiones = sesiones;
     }
 
-    public void iniciar(int puerto) throws IOException {
-        HttpServer servidor = HttpServer.create(new InetSocketAddress(puerto), 0);
+    /**
+     * @param host "127.0.0.1" (solo esta computadora, valor por defecto) o "0.0.0.0" para que otros
+     *             equipos de la red local puedan entrar (por ejemplo, para mostrarlo desde un celular).
+     */
+    public void iniciar(String host, int puerto) throws IOException {
+        HttpServer servidor = HttpServer.create(new InetSocketAddress(host, puerto), 0);
         servidor.createContext("/", this::atender);
         servidor.setExecutor(Executors.newFixedThreadPool(8));
         servidor.start();
@@ -40,6 +45,14 @@ public final class Servidor {
             Router.Ruta r = router.buscar(ex.getRequestMethod(), ruta);
             if (r == null) {
                 c.responder(404, c.pagina("Página no encontrada", "<p>La dirección solicitada no existe.</p>"));
+                return;
+            }
+            // Todo POST hecho con una sesión iniciada debe traer el token CSRF de esa sesión.
+            if ("POST".equals(c.metodo()) && c.usuario() != null && !c.csrfValido()) {
+                LOG.warning("POST rechazado por token CSRF inválido -> " + ruta);
+                c.responder(403, c.pagina("Formulario no válido",
+                        "<p>El formulario expiró o no se envió desde Mundo Lap. Vuelva a la página y repita la acción.</p>"
+                                + "<a class=\"btn btn-secundario\" href=\"/panel\">Ir al panel</a>"));
                 return;
             }
             if (r.roles() != null) {
@@ -60,7 +73,8 @@ public final class Servidor {
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "Error atendiendo " + ex.getRequestURI(), e);
             try {
-                byte[] b = "Error interno del servidor.".getBytes();
+                byte[] b = "Error interno del servidor.".getBytes(StandardCharsets.UTF_8);
+                ex.getResponseHeaders().set("Content-Type", "text/plain; charset=utf-8");
                 ex.sendResponseHeaders(500, b.length);
                 ex.getResponseBody().write(b);
             } catch (Exception ignorada) { /* la respuesta ya había comenzado */ }

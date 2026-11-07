@@ -51,6 +51,10 @@ public final class ClienteServicio {
 
     public List<String> validar(Cliente c) {
         List<String> errores = new ArrayList<>();
+        // Un ID solo llega del formulario al editar un cliente existente; los nuevos los asigna el sistema.
+        if (!c.idCliente().isEmpty() && repositorio.buscarPorId(c.idCliente()).isEmpty()) {
+            errores.add("El cliente que intenta modificar no existe.");
+        }
         if (c.nombreCompleto().isBlank()) errores.add("El nombre completo es obligatorio.");
         if (!TELEFONO.matcher(c.telefonoContacto()).matches()) errores.add("El teléfono debe tener 10 dígitos.");
         if (!c.correoElectronico().isBlank() && !CORREO.matcher(c.correoElectronico()).matches()) {
@@ -75,6 +79,9 @@ public final class ClienteServicio {
 
     /** RF-10 (alta) y RF-12 (actualización de contacto). Los datos deben venir normalizados y validados. */
     public Cliente guardar(Cliente c) {
+        if (!c.idCliente().isEmpty() && repositorio.buscarPorId(c.idCliente()).isEmpty()) {
+            throw new IllegalArgumentException("No existe el cliente " + c.idCliente());
+        }
         Cliente aGuardar = c.idCliente().isEmpty() ? c.conId(repositorio.nuevoId()) : c;
         repositorio.guardar(aGuardar);
         return aGuardar;

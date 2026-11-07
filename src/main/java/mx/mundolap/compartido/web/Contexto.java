@@ -7,6 +7,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.security.MessageDigest;
 import mx.mundolap.compartido.Html;
 import mx.mundolap.compartido.ItemMenu;
 import mx.mundolap.compartido.UsuarioSesion;
@@ -14,6 +17,11 @@ import mx.mundolap.compartido.Vistas;
 
 /** Petición actual: parámetros, usuario en sesión y métodos para responder. */
 public final class Contexto {
+    /** Nombre del campo oculto que lleva el token CSRF en los formularios POST. */
+    public static final String CAMPO_CSRF = "csrf";
+    private static final Pattern FORM_POST =
+            Pattern.compile("<form\\b[^>]*\\bmethod=\"post\"[^>]*>", Pattern.CASE_INSENSITIVE);
+
     private final HttpExchange ex;
     private final Router router;
     private final Sesiones sesiones;
@@ -62,6 +70,28 @@ public final class Contexto {
 
     public UsuarioSesion usuario() { return sesiones.obtener(token()).orElse(null); }
 
+    public String metodo() { return ex.getRequestMethod(); }
+
+    /** true si el formulario recibido trae el token CSRF de la sesión actual. */
+    boolean csrfValido() {
+        String esperado = sesiones.csrf(token()).orElse(null);
+        String recibido = param(CAMPO_CSRF);
+        return esperado != null && MessageDigest.isEqual(
+                esperado.getBytes(StandardCharsets.UTF_8), recibido.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /** Añade el campo oculto con el token CSRF a cada formulario POST del HTML. */
+    private String conCsrf(String html) {
+        String csrf = sesiones.csrf(token()).orElse(null);
+        if (csrf == null) return html;
+        String campo = "<input type=\"hidden\" name=\"" + CAMPO_CSRF + "\" value=\"" + Html.escapar(csrf) + "\">";
+        Matcher m = FORM_POST.matcher(html);
+        StringBuilder sb = new StringBuilder();
+        while (m.find()) m.appendReplacement(sb, Matcher.quoteReplacement(m.group() + campo));
+        m.appendTail(sb);
+        return sb.toString();
+    }
+
     public void fijarSesion(String token) {
         ex.getResponseHeaders().add("Set-Cookie", "SESION=" + token + "; Path=/; HttpOnly; SameSite=Lax");
     }
@@ -109,7 +139,7 @@ public final class Contexto {
         v.put("usuarioHtml", usuarioHtml);
         v.put("menuHtml", menu.toString());
         v.put("contenidoHtml", contenidoHtml);
-        return Vistas.render("layout", v);
+        return conCsrf(Vistas.render("layout", v));
     }
 
     private static String base(String ruta) {

@@ -37,6 +37,8 @@ public final class App {
 
     public static void main(String[] args) throws Exception {
         int puerto = args.length > 0 ? Integer.parseInt(args[0]) : Integer.getInteger("puerto", 8080);
+        // Por seguridad solo escucha en esta computadora. Para abrirlo en la red local: -Dmundolap.host=0.0.0.0
+        String host = System.getProperty("mundolap.host", "127.0.0.1");
 
         // ---- Base de datos: solo verifica la conexión y avisa; el sistema sigue con repositorios en memoria ----
         ConexionBD.probar();
@@ -74,7 +76,7 @@ public final class App {
             router.agregarMenu(m.menu());
         }
 
-        new Servidor(router, sesiones).iniciar(puerto);
+        new Servidor(router, sesiones).iniciar(host, puerto);
         System.out.println("Mundo Lap en marcha: http://localhost:" + puerto);
         System.out.println("Usuarios de ejemplo -> recepcion/recepcion123 | tecnico/tecnico123 | gerente/gerente123");
     }
